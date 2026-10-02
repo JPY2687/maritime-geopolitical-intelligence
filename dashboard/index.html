@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maritime Intelligence</title>
+    <style>
+      body { max-width: 900px; margin: 3rem auto; padding: 0 1rem; font: 1rem/1.5 system-ui, sans-serif; color: #172b3a; }
+      h1 { color: #075985; }
+      article { margin: 1rem 0; padding: 1rem; border: 1px solid #cbd5e1; border-radius: .5rem; }
+      .muted { color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <h1>Maritime Supply Chain Intelligence</h1>
+    <p class="muted">Events from the configured intelligence API. Demo records are synthetic.</p>
+    <main id="events" aria-live="polite">Loading events…</main>
+    <script>
+      async function loadEvents() {
+        const container = document.querySelector("#events");
+        try {
+          const response = await fetch("/api/v1/events");
+          if (!response.ok) throw new Error(`API returned ${response.status}`);
+          const events = await response.json();
+          container.replaceChildren(...events.map((event) => {
+            const card = document.createElement("article");
+            const heading = document.createElement("h2");
+            heading.textContent = event.title;
+            const description = document.createElement("p");
+            description.textContent = event.description;
+            const metadata = document.createElement("p");
+            metadata.className = "muted";
+            metadata.textContent = `${event.category} · ${event.location ?? "Location unavailable"} · ${new Date(event.occurred_at).toLocaleString()}`;
+            card.append(heading, description, metadata);
+            return card;
+          }));
+        } catch (error) {
+          container.textContent = `Unable to load events: ${error.message}`;
+        }
+      }
+      loadEvents();
+    </script>
+  </body>
+</html>
